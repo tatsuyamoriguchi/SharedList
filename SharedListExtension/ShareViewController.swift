@@ -28,6 +28,7 @@ class ShareViewController: SLComposeServiceViewController {
         let contentTextString: String = contentText
         // Save web page title and comments to Core Data
         newBookmark.setValue(contentTextString, forKey: "title")
+        saveContext()
         
         // Get web URL
         if let item = extensionContext?.inputItems[0] as? NSExtensionItem {
@@ -41,6 +42,11 @@ class ShareViewController: SLComposeServiceViewController {
                             if let shareURL = url as? URL {
                                 // Save url to Core Data
                                 newBookmark.setValue(shareURL, forKey: "url")
+                                
+                                //newBookmark.url = shareURL
+                                
+                                self.saveContext()
+
                                 print(" ")
                                 print("if let shareURL = url as? URL was true")
                                 print("shareURL: \(shareURL)")
@@ -59,7 +65,7 @@ class ShareViewController: SLComposeServiceViewController {
         
         
         
-        saveContext()
+        
         
         // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
