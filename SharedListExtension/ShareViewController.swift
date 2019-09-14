@@ -1,0 +1,69 @@
+//
+//  ShareViewController.swift
+//  SharedListExtension
+//
+//  Created by Tatsuya Moriguchi on 9/13/19.
+//  Copyright © 2019 Becko's Inc. All rights reserved.
+//
+
+import UIKit
+import Social
+import CoreData
+
+class ShareViewController: SLComposeServiceViewController {
+
+    override func isContentValid() -> Bool {
+        // Do validation of contentText and/or NSExtensionContext attachments here
+        return true
+    }
+
+    override func didSelectPost() {
+        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
+        
+        let contentTextString: String = "Read/Watch: " + contentText
+        let managedContext = self.persistentContainer.viewContext
+        
+        let entity = NSEntityDescription.entity(forEntityName: "List", in: managedContext)
+        let newBookmark = NSManagedObject(entity: entity!, insertInto: managedContext)
+        
+        newBookmark.setValue(contentTextString, forKey: "title")
+        
+        saveContext()
+        
+        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
+        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    }
+
+    override func configurationItems() -> [Any]! {
+        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
+        return []
+    }
+
+    // MARK: = Core Data stack
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSCustomPersistentContainer(name: "SharedList")
+        
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    
+    // MARK: = Core Data Saving support
+    func saveContext() {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                
+            }
+        }
+    }
+    
+
+}
