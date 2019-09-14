@@ -19,14 +19,45 @@ class ShareViewController: SLComposeServiceViewController {
 
     override func didSelectPost() {
         // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
-        
-        let contentTextString: String = "Read/Watch: " + contentText
+
         let managedContext = self.persistentContainer.viewContext
-        
         let entity = NSEntityDescription.entity(forEntityName: "List", in: managedContext)
         let newBookmark = NSManagedObject(entity: entity!, insertInto: managedContext)
         
+        // Get web title
+        let contentTextString: String = contentText
+        // Save web page title and comments to Core Data
         newBookmark.setValue(contentTextString, forKey: "title")
+        
+        // Get web URL
+        if let item = extensionContext?.inputItems[0] as? NSExtensionItem {
+            
+            if let itemProviders = item.attachments {
+                
+                for itemProvider: NSItemProvider in itemProviders {
+                    
+                    if itemProvider.hasItemConformingToTypeIdentifier("public.url") {
+                        itemProvider.loadItem(forTypeIdentifier: "public.url", options: nil, completionHandler: { (url, error) -> Void in
+                            if let shareURL = url as? URL {
+                                // Save url to Core Data
+                                newBookmark.setValue(shareURL, forKey: "url")
+                                print(" ")
+                                print("if let shareURL = url as? URL was true")
+                                print("shareURL: \(shareURL)")
+                            }
+                        })
+                    }
+
+                }
+            
+            }
+        
+        }
+        
+        
+        
+        
+        
         
         saveContext()
         

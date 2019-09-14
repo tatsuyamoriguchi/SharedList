@@ -72,6 +72,10 @@ class ListTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        self.tableView.reloadData()
+    }
+    
     
     // MARK: CoreData
     private var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>?
@@ -126,8 +130,10 @@ class ListTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell", for: indexPath)
         if let object = self.fetchedResultsController?.object(at: indexPath) as? List {
+            cell.textLabel?.numberOfLines = 0
             cell.textLabel?.text = object.title
-//            cell.detailTextLabel?.text = object.url?.absoluteString
+            //cell.detailTextLabel?.text = "TEST" //object.url?.absoluteString
+            
         } else {
             fatalError("Attempt configure cell without a managed object")
         }
@@ -139,11 +145,11 @@ class ListTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         print("didSelectRowAt was tapped.")
-//        let bookmark = self.fetchedResultsController?.object(at: indexPath) as? List
-//        let urlStored = bookmark?.url
-//
-//        if urlStored != nil { UIApplication.shared.open(urlStored!, options: [:], completionHandler: nil)}
-//        else { print("Error: No urlStored Found")}
+        let bookmark = self.fetchedResultsController?.object(at: indexPath) as? List
+        let urlStored = bookmark?.url
+
+        if urlStored != nil { UIApplication.shared.open(urlStored!, options: [:], completionHandler: nil)}
+        else { print("Error: No urlStored Found")}
         
     }
 
